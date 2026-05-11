@@ -37,8 +37,8 @@ app.get('/api/health', (req, res) => {
 
 // ---- Error Handling ----
 
-// 404 handler
-app.use((req, res) => {
+// 404 handler for API routes
+app.use('/api', (req, res) => {
     res.status(404).json({ error: 'Endpoint not found' });
 });
 
@@ -46,6 +46,16 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
     console.error('Server Error:', err.message);
     res.status(500).json({ error: 'Internal server error', details: err.message });
+});
+
+// ---- Serve Frontend in Production ----
+const path = require('path');
+// Serve static files from the React dist directory
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// Any other route should return the React app
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
 });
 
 // ---- Start Server ----
